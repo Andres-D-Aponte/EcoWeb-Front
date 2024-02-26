@@ -1,75 +1,141 @@
 <template>
-  <v-container class="fill-height">
-    <v-responsive class="align-center text-center fill-height">
-      <v-img height="300" src="@/assets/logo.svg" />
+  <v-card>
+    <v-toolbar color="primary">
+      <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
-      <div class="text-body-2 font-weight-light mb-n1">Welcome to</div>
+      <v-toolbar-title>Your Dashboard</v-toolbar-title>
 
-      <h1 class="text-h2 font-weight-bold">Vuetify</h1>
+      <v-spacer></v-spacer>
 
-      <div class="py-14" />
+      <v-btn icon>
+        <v-icon>mdi-magnify</v-icon>
+      </v-btn>
 
-      <v-row class="d-flex align-center justify-center">
-        <v-col cols="auto">
-          <v-btn
-            href="https://vuetifyjs.com/components/all/"
-            min-width="164"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="text"
+      <v-btn icon>
+        <v-icon>mdi-dots-vertical</v-icon>
+      </v-btn>
+
+      <template v-slot:extension>
+        <v-tabs
+          v-model="tab"
+          align-tabs="title"
+        >
+          <v-tab
+            v-for="item in items"
+            :key="item"
+            :value="item"
           >
-            <v-icon
-              icon="mdi-view-dashboard"
-              size="large"
-              start
-            />
+            {{ item }}
+          </v-tab>
+        </v-tabs>
+      </template>
+    </v-toolbar>
 
-            Components
-          </v-btn>
-        </v-col>
-
-        <v-col cols="auto">
-          <v-btn
-            color="primary"
-            href="https://vuetifyjs.com/introduction/why-vuetify/#feature-guides"
-            min-width="228"
-            rel="noopener noreferrer"
-            size="x-large"
-            target="_blank"
-            variant="flat"
-          >
-            <v-icon
-              icon="mdi-speedometer"
-              size="large"
-              start
-            />
-
-            Get Started
-          </v-btn>
-        </v-col>
-
-        <v-col cols="auto">
-          <v-btn
-            href="https://community.vuetifyjs.com/"
-            min-width="164"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="text"
-          >
-            <v-icon
-              icon="mdi-account-group"
-              size="large"
-              start
-            />
-
-            Community
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-responsive>
-  </v-container>
+    <v-window v-model="tab">
+      <v-window-item
+        v-for="item in items"
+        :key="item"
+        :value="item"
+      >
+        <v-card flat>
+          <v-sheet width="300" class="mx-auto">
+  
+            <v-form ref="form">
+              <v-text-field
+                v-model="name"
+                :counter="10"
+                :rules="nameRules"
+                label="Name"
+                required
+              ></v-text-field>
+        
+              <v-select
+                v-model="select"
+                :items="items2"
+                :rules="[v => !!v || 'Item is required']"
+                label="Item"
+                required
+              ></v-select>
+        
+              <v-checkbox
+                v-model="checkbox"
+                :rules="[v => !!v || 'You must agree to continue!']"
+                label="Do you agree?"
+                required
+              ></v-checkbox>
+        
+              <div class="d-flex flex-column">
+                <v-btn
+                  color="success"
+                  class="mt-4"
+                  block
+                  @click="validate"
+                >
+                  Validate
+                </v-btn>
+        
+                <v-btn
+                  color="error"
+                  class="mt-4"
+                  block
+                  @click="reset"
+                >
+                  Reset Form
+                </v-btn>
+        
+                <v-btn
+                  color="warning"
+                  class="mt-4"
+                  block
+                  @click="resetValidation"
+                >
+                  Reset Validation
+                </v-btn>
+              </div>
+            </v-form>
+          </v-sheet>
+        </v-card>
+      </v-window-item>
+    </v-window>
+  </v-card>
 </template>
 
-<script setup lang="ts">
-  //
+<script>
+  export default {
+    data () {
+      return {
+        tab: null,
+        items: [    //ITEMS DE LA BARRA DE NAVEFACION
+          'INTERES SIMPLE', 'INTERES COMPUESTO', 'ANUALIDAD',
+        ],
+        text: '',
+        name: '',
+        nameRules: [
+          v => !!v || 'Name is required',
+          v => (v && v.length <= 10) || 'Name must be less than 10 characters',
+        ],
+        select: null,
+        items2: [
+          'Item 1',
+          'Item 2',
+          'Item 3',
+          'Item 4',
+        ],
+        checkbox: false,
+      }
+    },
+    methods: {
+        async validate () {
+          const { valid } = await this.$refs.form.validate()
+  
+          if (valid) alert('Form is valid')
+        },
+        reset () {
+          this.$refs.form.reset()
+        },
+        resetValidation () {
+          this.$refs.form.resetValidation()
+        },
+      },
+  }
 </script>
