@@ -133,6 +133,13 @@
                   v-on:input="validateNumericInput"
                   required
                 ></v-text-field>
+
+                <v-select v-if="type_calculate == 'TIEMPO INVERTIDO'"
+                  v-model="showTime"
+                  :items="options_time_compound"
+                  label="Seleccione una opcion"
+                  required
+                ></v-select>
         
               <div class="d-flex flex-column">
                 <v-btn
@@ -179,6 +186,7 @@
         compoundAmount: 0,
         type_calculate: null,
         tab: null,
+        showTime: null,
         items: [    //ITEMS DE LA BARRA DE NAVEFACION
           'INTERES SIMPLE', 'INTERES COMPUESTO', 'ANUALIDAD',
         ],
@@ -194,6 +202,11 @@
           'TASA DE INTERES',
           'MONTO COMPUESTO',
           'TIEMPO INVERTIDO',
+        ],
+        options_time_compound:[
+          'DIAS',
+          'MESES',
+          'AÑOS',
         ],
         filtro: moment().format('MM/DD/YYYY')+' - '+moment().format('MM/DD/YYYY'),
       }
@@ -212,6 +225,7 @@
         this.interestRate   = 0;
         this.interestEarned = 0;
         this.compoundAmount = 0;
+        this.showTime       = null;
         this.type_calculate = null;
       },
       validateNumeric(value) {
