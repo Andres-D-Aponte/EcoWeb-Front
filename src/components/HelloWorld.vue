@@ -66,7 +66,48 @@
                   required
                 ></v-text-field>
 
-                <vs-input  name="daterange" id="daterange" v-model="filtro" class="w-full" autocomplete="off" readonly/>
+                <div style="display: flex;" v-if="type_calculate != 'TIEMPO INVERTIDO' && type_calculate != null">
+                  <v-text-field
+                    style="width: 30%;"
+                    v-model="anos"
+                    :rules="[validateNumeric]"
+                    label="AÑOS"
+                    v-on:input="validateNumericInput"
+                    required
+                  ></v-text-field>
+
+                  <v-text-field
+                    style="width: 30%;"
+                    v-model="meses"
+                    :rules="[validateNumeric]"
+                    label="MESES"
+                    v-on:input="validateNumericInput"
+                    required
+                  ></v-text-field>
+
+                  <v-text-field
+                    style="width: 30%;"
+                    v-model="dias"
+                    :rules="[validateNumeric]"
+                    label="DIAS"
+                    v-on:input="validateNumericInput"
+                    required
+                  ></v-text-field>
+                </div>
+                <template v-if="error_date == true">
+                  <v-alert
+                    density="compact"
+                    text="Un campo del tiempo debe ser superior a 0"
+                    title="Error"
+                    type="error"
+                  ></v-alert>
+                </template>
+
+                <v-text-field
+                    v-if="answer == true"
+                    v-model="result"
+                    disabled
+                  ></v-text-field>
         
               <div class="d-flex flex-column">
                 <v-btn
@@ -140,6 +181,49 @@
                   label="Seleccione una opcion"
                   required
                 ></v-select>
+
+                <div style="display: flex;" v-if="type_calculate != 'TIEMPO INVERTIDO' && type_calculate != null">
+                  <v-text-field
+                    style="width: 30%;"
+                    v-model="anos"
+                    :rules="[validateNumeric]"
+                    label="AÑOS"
+                    v-on:input="validateNumericInput"
+                    required
+                  ></v-text-field>
+
+                  <v-text-field
+                    style="width: 30%;"
+                    v-model="meses"
+                    :rules="[validateNumeric]"
+                    label="MESES"
+                    v-on:input="validateNumericInput"
+                    required
+                  ></v-text-field>
+
+                  <v-text-field
+                    style="width: 30%;"
+                    v-model="dias"
+                    :rules="[validateNumeric]"
+                    label="DIAS"
+                    v-on:input="validateNumericInput"
+                    required
+                  ></v-text-field>
+                </div>
+                <template v-if="error_date == true">
+                  <v-alert
+                    density="compact"
+                    text="Un campo del tiempo debe ser superior a 0"
+                    title="Error"
+                    type="error"
+                  ></v-alert>
+                </template>
+
+                <v-text-field
+                    v-if="answer == true"
+                    v-model="result"
+                    disabled
+                  ></v-text-field>
         
               <div class="d-flex flex-column">
                 <v-btn
@@ -184,9 +268,16 @@
         interestRate: 0,
         interestEarned: 0,
         compoundAmount: 0,
+        anos: 0,
+        meses: 0,
+        dias: 0,
+        time: 0,
+        result: '',
         type_calculate: null,
         tab: null,
         showTime: null,
+        error_date: false,
+        answer: false,
         items: [    //ITEMS DE LA BARRA DE NAVEFACION
           'INTERES SIMPLE', 'INTERES COMPUESTO', 'ANUALIDAD',
         ],
@@ -217,14 +308,25 @@
       },
     },
     methods: {
-      validate () {
-        console.log(this.tab);
+      async validate () {
+        let validate_date = await this.calculateTime();
+        if(validate_date){
+          this.answer = true;
+          this.result = 18;
+        }
+        console.log(this.capital , this.interestRate , this.interestEarned, this.compoundAmount, this.anos , this.meses , this.dias );
+        
       },
       reset () {
         this.capital        = 0;
         this.interestRate   = 0;
         this.interestEarned = 0;
         this.compoundAmount = 0;
+        this.anos           = 0,
+        this.meses          = 0,
+        this.dias           = 0;
+        this.error_date     = false,
+        this.answer         = false,
         this.showTime       = null;
         this.type_calculate = null;
       },
@@ -233,53 +335,26 @@
         return numericRegex.test(value) || 'Solo se permiten números';
       },
       validateNumericInput() {
-        this.capital = this.capital.replace(/[^0-9.]/g, '');
+        this.capital = String(this.capital).replace(/[^0-9.]/g, '');
+        this.interestRate = String(this.interestRate).replace(/[^0-9.]/g, '');
+        this.interestEarned = String(this.interestEarned).replace(/[^0-9.]/g, '');
+        this.compoundAmount = String(this.compoundAmount).replace(/[^0-9.]/g, '');
+        this.anos = String(this.anos).replace(/[^0-9.]/g, '');
+        this.meses = String(this.meses).replace(/[^0-9.]/g, '');
+        this.dias = String(this.dias).replace(/[^0-9.]/g, '');
       },
-      activateDateRange(){
-		    var today = new Date()
-        $('#daterange').daterangepicker({
-          opens: 'right',  
-          autoApply: true,
-          "locale": {
-          "format": "MM/DD/YYYY",
-          "separator": " - ",
-          "applyLabel": "Aplicar",
-          "cancelLabel": "Cancelar",
-          "fromLabel": "From",
-          "toLabel": "To",
-          "customRangeLabel": "Custom",
-          "startDate": moment().format('MM/DD/YYYY'),
-          "endDate": moment().format('MM/DD/YYYY'),        
-          "daysOfWeek": [
-              "Do",
-              "Lu",
-              "Ma",
-              "Mi",
-              "Ju",
-              "Vi",
-              "Sa"
-          ],
-          "monthNames": [
-              "Enero",
-              "Febrero",
-              "Marzo",
-              "Abril",
-              "Mayo",
-              "Junio",
-              "Julio",
-              "Agosto",
-              "Septiembre",
-              "Octubre",
-              "Noviembre",
-              "Diciembre"
-          ],
-          "firstDay": 1,
-          }      
-        }, function(start, end, label) {});
+      calculateTime() {
+        if (this.anos > 0 || this.meses > 0 || this.dias > 0) {
+          this.time = (this.anos * 360) + (this.meses * 30) + (this.dias);
+          this.error_date = false;
+          return true;
+        } else {
+          this.error_date = true;
+          this.answer = false;
+          return false;
+        }
       },
     },
-    mounted(){
-      //this.activateDateRange();
-    }
+    
   }
 </script>
