@@ -594,7 +594,7 @@
             ></v-text-field>
 
             <v-text-field
-              v-if="form.type_calculate != null && form.num_gradients > 0 && form.num_gradients != 'GRADIENTE ARITMETICO'"
+              v-if="form.type_calculate != null && form.num_gradients > 0 && form.type_calculate != 'GRADIENTE ARITMETICO'"
               v-model="form.consignaciones.monto[0]"
               :rules="[v => !!v || 'Debe ser numérico y superior a 0', validateNumeric]"
               label="CAPITAL"
@@ -603,7 +603,7 @@
             ></v-text-field>
 
             <v-text-field
-              v-if="form.type_calculate != null && form.num_gradients > 0 && form.num_gradients != 'GRADIENTE ARITMETICO'"
+              v-if="form.type_calculate != null && form.num_gradients > 0 && form.type_calculate != 'GRADIENTE ARITMETICO'"
               v-model="form.incremento"
               :rules="[v => !!v || 'Tasa de crecimiento debe ser numerico y superior a 0', validateNumeric]"
               label="TASA DE CRECIMIENTO POR PERIODO"
