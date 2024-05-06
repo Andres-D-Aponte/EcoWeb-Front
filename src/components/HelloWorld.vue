@@ -274,7 +274,7 @@
         </v-card>
       <!--FIN INTERES COMPUESTO-->
 
-      <!--INICIO TASA DE INTERES-->>
+      <!--INICIO TASA DE INTERES-->
       <v-card flat v-if="form.type_interest == 'TASA DE INTERES'" style="display: flex;">
         <div style="padding-top: 3%; width: 50%; margin-left: 10%;">
           <div style="width: 100%;">
@@ -389,7 +389,282 @@
         </v-sheet>
         <!--FIN FORMULARIO-->
       </v-card>
-      <!--FIN TASA DE INTERES-->>
+      <!--FIN TASA DE INTERES-->
+
+      <!--INICIO AMORTIZACION-->
+      <v-card flat v-if="form.type_interest == 'AMORTIZACION'" style="display: flex;">
+        <div style="padding-top: 3%; width: 50%; margin-left: 10%;">
+          <div style="width: 100%;">
+            <img class="imgs" v-show="form.type_interest == 'AMORTIZACION' && form.type_calculate == null" src="../assets/amortizacion.png" alt="">
+            <img class="imgs" v-show="form.type_interest == 'AMORTIZACION' && form.type_calculate == 'AMORTIZACION'" src="../assets/amortizacion1.png" alt="">
+            <img class="imgs" v-show="form.type_interest == 'AMORTIZACION' && form.type_calculate == 'CAPITALIZACION'" src="../assets/capitalizacion.png" alt="">
+          </div>
+        </div>
+
+        <!--INICIO FORMULARIO-->
+        <v-sheet width="350" class="mx-auto" style="padding-top: 30px;">
+
+          <v-select
+            v-model="form.type_calculate"
+            :items="options_Amortization"
+            label="Seleccione una opcion"
+            required
+          ></v-select>
+
+          <v-form ref="form" >
+            <v-text-field
+              v-if="form.type_calculate != 'CAPITALIZACION' && form.type_calculate != null"
+              v-model="form.active_cost"
+              :rules="[v => !!v || 'Costo activo debe ser numerico y superior a 0', validateNumeric]"
+              label="COSTO ACTIVO"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+            
+            <v-text-field
+              v-if="form.type_calculate != 'AMORTIZACION' && form.type_calculate != null"
+              v-model="form.present_value"
+              :rules="[v => !!v || 'Valor presente debe ser numerico y superior a 0', validateNumeric]"
+              label="VALOR PRESENTE"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-if="form.type_calculate != 'AMORTIZACION' && form.type_calculate != null"
+              v-model="form.interestRate"
+              :rules="[v => !!v || 'Tasa de interes debe ser numerico y superior a 0', validateNumeric]"
+              label="TASA DE INTERES"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-if="form.type_calculate != null"
+              v-model="form.useful_life"
+              :rules="[v => !!v || 'Vida útil debe ser numerico y superior a 0', validateNumeric]"
+              label="VIDA UTIL"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-if="answer == true"
+              v-model="result"
+              disabled
+            ></v-text-field>
+      
+            <div class="d-flex flex-column">
+              <v-btn
+                color="#1867c0"
+                class="mt-4"
+                block
+                @click="validate()"
+              >
+                Calcular
+              </v-btn>
+      
+              <v-btn
+                color="error"
+                class="mt-4"
+                block
+                @click="reset"
+              >
+                Limpiar
+              </v-btn>
+      
+            </div>
+          </v-form>
+        </v-sheet>
+        <!--FIN FORMULARIO-->
+      </v-card>
+      <!--FIN AMORTIZACION-->
+
+      <!--INICIO TASA INTERNA DE RETORNO-->
+      <v-card flat v-if="form.type_interest == 'TASA INTERNA DE RETORNO'" style="display: flex;">
+        <div style="padding-top: 3%; width: 50%; margin-left: 10%;">
+          <div style="width: 100%;">
+            <img class="imgs" v-show="form.type_interest == 'TASA INTERNA DE RETORNO' && form.type_calculate == null" src="../assets/TIR.png" alt="">
+            <img class="imgs" v-show="form.type_interest == 'TASA INTERNA DE RETORNO' && form.type_calculate == 'TIR'" src="../assets/TIR1.png" alt="">
+          </div>
+        </div>
+
+        <!--INICIO FORMULARIO-->
+        <v-sheet width="350" class="mx-auto" style="padding-top: 30px;">
+
+          <v-select
+            v-model="form.type_calculate"
+            :items="options_TIR"
+            label="Seleccione una opcion"
+            required
+          ></v-select>
+
+          <v-form ref="form" >
+
+            <v-text-field
+              v-if="form.type_calculate != null && form.type_calculate == 'TIR'"
+              v-model="form.num_tir"
+              :rules="[v => !!v || 'El número de flujos debe ser numérico y superior a 0', validateNumeric]"
+              label="Número de flujos de efectivo"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-if="form.type_calculate != null && form.num_tir > 0 && form.type_calculate == 'TIR'"
+              v-for="index in parseInt(form.num_tir) + 1"
+              :key="index"
+              v-model="form.flujos[index - 1]" 
+              :rules="[v => !!v || 'El flujo de dinero debe ser numérico y superior a 0', validateNumeric]"
+              :label="'Año ' + (index - 1)"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-if="answer == true"
+              v-model="result"
+              disabled
+            ></v-text-field>
+      
+            <div class="d-flex flex-column">
+              <v-btn
+                color="#1867c0"
+                class="mt-4"
+                block
+                @click="validate()"
+              >
+                Calcular
+              </v-btn>
+      
+              <v-btn
+                color="error"
+                class="mt-4"
+                block
+                @click="reset"
+              >
+                Limpiar
+              </v-btn>
+      
+            </div>
+          </v-form>
+        </v-sheet>
+        <!--FIN FORMULARIO-->
+      </v-card>
+      <!--FIN TASA INTERNA DE RETORNO-->
+
+      <!--INICIO GRADIENTES-->
+      <v-card flat v-if="form.type_interest == 'GRADIENTES'" style="display: flex;">
+        <div style="padding-top: 3%; width: 50%; margin-left: 10%;">
+          <div style="width: 100%;">
+            <img class="imgs" v-show="form.type_interest == 'GRADIENTES' && form.type_calculate == null" src="../assets/gradientes.png" alt="">
+            <img class="imgs" v-show="form.type_interest == 'GRADIENTES' && form.type_calculate == 'GRADIENTE ARITMETICO'" src="../assets/gradiente_aritmetico.png" alt="">
+            <img class="imgs" v-show="form.type_interest == 'GRADIENTES' && form.type_calculate == 'GRADIENTE GEOMETRICO'" src="../assets/gradiente_geometrico.png" alt="">
+          </div>
+        </div>
+
+        <!--INICIO FORMULARIO-->
+        <v-sheet width="350" class="mx-auto" style="padding-top: 30px;">
+
+          <v-select
+            v-model="form.type_calculate"
+            :items="options_gradients"
+            label="Seleccione una opcion"
+            required
+          ></v-select>
+
+          <v-form ref="form" >
+
+            <v-text-field
+              v-if="form.type_calculate != null"
+              v-model="form.interestRate"
+              :rules="[v => !!v || 'Tasa de interes debe ser numerico y superior a 0', validateNumeric]"
+              label="TASA DE INTERES"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-if="form.type_calculate != null"
+              v-model="form.num_gradients"
+              :rules="[v => !!v || 'El número de periodos debe ser numérico y superior a 0', validateNumeric]"
+              label="Número de periodos a pagar"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-if="form.type_calculate != null && form.num_gradients > 0 && form.num_gradients != 'GRADIENTE ARITMETICO'"
+              v-model="form.consignaciones.monto[0]"
+              :rules="[v => !!v || 'Debe ser numérico y superior a 0', validateNumeric]"
+              label="CAPITAL"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-if="form.type_calculate != null && form.num_gradients > 0 && form.num_gradients != 'GRADIENTE ARITMETICO'"
+              v-model="form.incremento"
+              :rules="[v => !!v || 'Tasa de crecimiento debe ser numerico y superior a 0', validateNumeric]"
+              label="TASA DE CRECIMIENTO POR PERIODO"
+              v-on:input="validateNumericInput"
+              required
+            ></v-text-field>
+
+            
+            <div v-for="index in parseInt(form.num_gradients)" :key="index" style="display: flex; justify-content: space-between;" v-if="form.type_calculate != null && form.num_gradients > 0 && form.type_calculate != 'GRADIENTE GEOMETRICO'">
+              <v-text-field
+                style="width: 45%;"
+                v-model="form.consignaciones.monto[index - 1]"
+                :rules="[v => !!v || 'Debe ser numérico y superior a 0', validateNumeric]"
+                label="CAPITAL"
+                v-on:input="validateNumericInput"
+                required
+              ></v-text-field>
+
+              <v-text-field
+                style="width: 45%;"
+                v-model="form.consignaciones.meses[index - 1]"
+                :rules="[v => !!v || 'Debe ser numérico y superior a 0', validateNumeric]"
+                label="MES"
+                v-on:input="validateNumericInput"
+                required
+              ></v-text-field>
+            </div>
+            
+
+            <v-text-field
+              v-if="answer == true"
+              v-model="result"
+              disabled
+            ></v-text-field>
+      
+            <div class="d-flex flex-column">
+              <v-btn
+                color="#1867c0"
+                class="mt-4"
+                block
+                @click="validate()"
+              >
+                Calcular
+              </v-btn>
+      
+              <v-btn
+                color="error"
+                class="mt-4"
+                block
+                @click="reset"
+              >
+                Limpiar
+              </v-btn>
+      
+            </div>
+          </v-form>
+        </v-sheet>
+        <!--FIN FORMULARIO-->
+      </v-card>
+      <!--FIN GRADIENTES-->
+
       </v-window-item>
     </v-window>
   </v-card>
@@ -408,10 +683,21 @@
           interestRate: 0,
           interestEarned: 0,
           compoundAmount: 0,
+          active_cost: 0,
+          useful_life: 0,
+          present_value: 0,
+          num_tir: 1,
+          num_gradients: 1,
+          time: 0,
+          incremento: 0,
           type_calculate: null,
           type_interest: null,
-          time: 0,
           showTime: null,
+          flujos: [],
+          consignaciones: {
+            monto: {},
+            meses: {}
+          },
         },
         anos: 0,
         meses: 0,
@@ -420,7 +706,7 @@
         error_date: false,
         answer: false,
         items: [    //ITEMS DE LA BARRA DE NAVEFACION
-          'INTERES SIMPLE', 'INTERES COMPUESTO', 'TASA DE INTERES',
+          'INTERES SIMPLE', 'INTERES COMPUESTO', 'TASA DE INTERES', 'AMORTIZACION', 'TASA INTERNA DE RETORNO', 'GRADIENTES'
         ],
         options_simple: [   //ITEMS DE LA BARRA DE NAVEFACION
           'CAPITAL',
@@ -450,6 +736,17 @@
           'INTERES SIMPLE',
           'INTERES COMPUESTO',
         ],
+        options_Amortization:[
+          'AMORTIZACION',
+          'CAPITALIZACION',
+        ],
+        options_TIR:[
+          'TIR',
+        ],
+        options_gradients:[
+          'GRADIENTE ARITMETICO',
+          'GRADIENTE GEOMETRICO',
+        ],
       }
     },
     watch: {
@@ -470,6 +767,11 @@
           this.form.interestRate = parseFloat(this.form.interestRate);
           this.form.interestEarned = parseInt(this.form.interestEarned);
           this.form.compoundAmount = parseInt(this.form.compoundAmount);
+          this.form.active_cost = parseInt(this.form.active_cost);
+          this.form.useful_life = parseInt(this.form.useful_life);
+          this.form.flujos = this.form.flujos;
+          this.form.consignaciones = this.form.consignaciones;
+          this.form.present_value = parseInt(this.form.present_value);
           axios.post("http://127.0.0.1:8000/api/calculate?", this.form)
           .then(res=> {
             this.answer = true;
@@ -485,16 +787,23 @@
         this.form.interestRate   = 0;
         this.form.interestEarned = 0;
         this.form.compoundAmount = 0;
-        this.anos           = 0,
-        this.meses          = 0,
-        this.dias           = 0;
-        this.error_date     = false,
-        this.answer         = false,
+        this.form.active_cost    = 0;
+        this.form.useful_life    = 0;
+        this.form.present_value  = 0;
+        this.form.num_tir        = 1;
+        this.form.num_gradients  = 1;
+        this.anos                = 0;
+        this.meses               = 0;
+        this.dias                = 0;
+        this.form.flujos         = [];
+        this.form.consignaciones = { monto: {}, meses: {}};
+        this.error_date          = false;
+        this.answer              = false;
         this.form.showTime       = null;
         if(!typeCalculate)this.form.type_calculate = null;
       },
       validateNumeric(value) {
-        const numericRegex = /^[0-9.]+$/;
+        const numericRegex = /^-?[0-9.]+$/;
         return numericRegex.test(value) || 'Solo se permiten números';
       },
       validateNumericInput() {
@@ -502,12 +811,15 @@
         this.form.interestRate = String(this.form.interestRate).replace(/[^0-9.]/g, '');
         this.form.interestEarned = String(this.form.interestEarned).replace(/[^0-9.]/g, '');
         this.form.compoundAmount = String(this.form.compoundAmount).replace(/[^0-9.]/g, '');
+        this.form.active_cost = String(this.form.active_cost).replace(/[^0-9.]/g, '');
+        this.form.useful_life = String(this.form.useful_life).replace(/[^0-9.]/g, '');
+        this.form.present_value = String(this.form.present_value).replace(/[^0-9.]/g, '');
         this.anos = String(this.anos).replace(/[^0-9.]/g, '');
         this.meses = String(this.meses).replace(/[^0-9.]/g, '');
         this.dias = String(this.dias).replace(/[^0-9.]/g, '');
       },
       calculateTime() {
-        if(this.form.type_calculate == "TIEMPO INVERTIDO"){
+        if(this.form.type_calculate == "TIEMPO INVERTIDO" || this.form.type_calculate == "AMORTIZACION" || this.form.type_calculate == "CAPITALIZACION" || this.form.type_calculate == "TIR" || this.form.type_interest == "GRADIENTES"){
           this.error_date = false;
           return true;
         }else if((this.anos == null || this.meses == null || this.dias == null)){
